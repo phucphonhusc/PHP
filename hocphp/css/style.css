@@ -1,0 +1,10 @@
+.btnedit {
+    background:  yellow;
+    border: none;
+    border-radius: 25%;
+}
+.btndel {
+    background:  red;
+    border: none;
+    border-radius: 25%;
+}
