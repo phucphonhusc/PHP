@@ -1,12 +1,3 @@
-1#OOP in php#5000#phucphonhusc1#2009
-2#java#3000#phucphonhusc2#2009
+2#java#300099#phucphonhusc2#2019
 3#c#2345#phucphonhusc3#2001
-4#c1#234#phucphonhusc4#2007
-5#ruby#23412#phucphonhusc5#2008
-6#python#51234#phucphonhusc6#2006
-7#phuc phon#5124#phucphonhusc7#2007
-8#fonee#3423#phucphonhusc8#2003
-9#HAHA#5213#phucphonhusc9#2005
-10#OKp#512#phucphonhusc10#2001
-11#bigdata#800$#NVPP#2013
-45#asd#asd#asd#2015
+6#OOPinphÁDASD#43534#ASD ÁDAS#2015

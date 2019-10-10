@@ -1,27 +1,27 @@
 <?php 
 class Book{
-    #-->properties
+    #properties
     var $id;
-    var $price ;
     var $title;
+    var $price;
     var $author;
     var $year;
     #end properties
-    #construct
-    function __construct($id, $title,$price ,$author, $year)
+        #Construct function
+    function __construct($id,  $title, $price, $author, $year)
     {
-        $this->id= $id;
+        $this->id=$id;
         $this->title = $title;
-        $this->price =$price;
+        $this->price = $price;
         $this->author = $author;
         $this->year = $year;
     }
+    #Member function
     function display(){
-        echo "ID : ".$this->id ."<br>";
-        echo "Title : ".$this->title ."<br>";
-        echo "Price : ".$this->price ."<br>";
-        echo "Author : ".$this->author ."<br>";
-        echo "Year : ".$this->year ."<br>";
+        echo "Price : " . $this->price . "<br>";
+        echo "Title : " . $this->title . "<br>";
+        echo "Author : " . $this->author . "<br>";
+        echo "Year : " . $this->year . "<br>";
     }
     #mod data 
     /**
@@ -29,27 +29,24 @@ class Book{
      */
     static function getList(){
         $listBook = array();
-        array_push($listBook, new Book(1,"a",10,"foneee", 2020));
-        array_push($listBook, new Book(2,"b",20,"foneee2", 2020));
-        array_push($listBook, new Book(3,"c",30,"foneee3", 2020));
-        array_push($listBook, new Book(4,"d",40,"foneee", 2022));
-        array_push($listBook, new Book(5,"e",50,"foneee6", 2064));
+        array_push($listBook, new Book(1,6,"a",10,"foneee", 2020));
+        array_push($listBook, new Book(2,7,"b",20,"foneee2", 2020));
+        array_push($listBook, new Book(3,8,"c",30,"foneee3", 2020));
+        array_push($listBook, new Book(4,9,"d",40,"foneee", 2022));
+        array_push($listBook, new Book(5,10,"e",50,"foneee6", 2064));
         return $listBook;
     }
    
     //LẤY DỮ LIỆU TỪ FILE
     static function getListFromFile(){
         $arrData= file("Data/book.txt",FILE_SKIP_EMPTY_LINES);
-        // var_dump($arrData);
+        $arrData = array_values(array_filter($arrData, "trim"));
         $lsBook = array();
-        // echo "<ul>";
-        foreach($arrData as $key=>$value){
-            // echo "<li>".$value . "</li>";
-            $arrItems = explode("#",$value);
-            $book= new Book($arrItems[0],$arrItems[1],$arrItems[2],$arrItems[3],$arrItems[4]);
+        foreach($arrData as $key => $value){
+            $arrItem = explode("#",$value);
+            $book =  new Book($arrItem[0], $arrItem[1], $arrItem[2], $arrItem[3], $arrItem[4]);
             array_push($lsBook, $book);
-        }
-        // echo "</ul>";
+        };
         return  $lsBook;
     }
     static function getListTimKiem($search = null){
@@ -66,26 +63,53 @@ class Book{
         }
         return $arrBook;
     }
-    static function AddToFile($content){
-        $myfile = fopen("Data/book.txt", "a") or die("Unable to open file!");
-        fwrite($myfile, "\n". $content);
-        fclose($myfile);
-    }
-    static function deleteBoook($id, $title, $price, $author, $year ){
-        $data = Book::getListTimKiem();
-        $arrBook = [];
-        $content = "";
-        foreach($data as $key => $value){
-            if($value->id != $id && $value->price != $price && $value->title != $title &&$value->author != $author &&$value->year != $year)
-                $arrBook[] = $value;
+    static function AddToFile($content, $idBook){
+        $listBook = Book::getListFromFile();
+        $kt = 0;
+        foreach ($listBook as $key) {
+            if($idBook == $key->id){
+                $kt++;
+                break;
+            }
+        }
+        if($kt==0){
+            $myfile = fopen("Data/book.txt", "a") or die("Unable to open file!");
+            // "a" là ghi đè lên
+            fwrite($myfile,"\n".$content);
+            fclose($myfile);
+        }
+        else{
+            echo "Trùng ID";
         }
         
-        $myfile = fopen("Data/book.txt", "a") or die("Unable to open file!");
-        foreach($arrBook as $key => $value){
-            $content .= $value->id."#".$value->title."#".$value->price."#".$value->author."#".$value->year;
+    }
+
+    static function delBook($idBook){
+        $listBook = Book::getListFromFile();
+        $myfile = fopen("Data/book.txt", "w") or die("Unable to open file!");  
+        unset($listBook[$idBook]);  
+        foreach ($listBook as $key => $value) {
+            $content = $value->id."#".$value->title."#".$value->price."#".$value->author."#".$value->year;
+            fwrite($myfile, $content);
+            
         }
-        fwrite($myfile, $content);
         fclose($myfile);
     }
-}
+    static function editBook($book){
+        $listBook = Book::getListFromFile();
+        $myfile = fopen("Data/book.txt", "w") or die("Unable to open file!");
+        foreach ($listBook as $key => $value) {
+            if($value->id === $book->id){
+                $value->title = $book->title;
+                $value->price = $book->price;
+                $value->author = $book->author;
+                $value->year = $book->year;    
+            }
+            $content = $value->id."#".$value->title."#".$value->price."#".$value->author."#".$value->year;
+            fwrite($myfile, $content."\n");
+        }
+        
+        fclose($myfile);
+    }
+} 
 ?>
