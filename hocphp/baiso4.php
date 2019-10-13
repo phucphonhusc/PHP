@@ -1,4 +1,6 @@
-<?php include_once("header.php")?>
+<?php require_once 'MODEL/Pagination.php'; ?>
+<?php include_once("header.php")
+?>
 <?php include_once("nav.php")?>
 <?php
     include_once("MODEL/book.php");
@@ -48,6 +50,7 @@
     }
     
 ?>
+
 <div class="row">
   <div class="col-6">
     <form action="" method="GET">
@@ -136,7 +139,7 @@
 
 <table class="table table-bordered table-hover">
   <thead class="thead-dark">
-    <tr>
+    <tr align="center">
       <th scope="col">STT</th>
       <th scope="col">Tiêu Đề</th>
       <th scope="col">Tác Giả</th>
@@ -156,7 +159,7 @@
       
       foreach ($arr as  $key => $value) {
       ?>   
-      <tr>
+      <tr align="center">
         <td><?php echo $value->id?></td>
         <td><?php echo $value->title?></td>
         <td><?php echo $value->author?></td>
@@ -229,7 +232,7 @@
                 </div>
               </div>
               
-              <button type="submit" class="btn btn-outline-secondary" data-toggle="modal" data-target="<?php echo "#deleteBook".$value->id; ?>"><i class="far fa-trash-alt"></i> Xóa</button>
+              <button type="submit" class="btn btn-outline-danger" data-toggle="modal" data-target="<?php echo "#deleteBook".$value->id; ?>"><i class="far fa-trash-alt"></i> Xóa</button>
               <div class="modal fade" id="<?php echo "deleteBook".$value->id; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                   <form action="" method="post">  
@@ -259,4 +262,14 @@
    
   </tbody>
 </table>
+<?php 
+    $config = [
+        'total' => 30, 
+        'limit' => 2,
+        'full' => false,
+        'querystring' => 'page'
+        ];
+    $page = new Pagination($config);
+    echo $page->getPagination();
+?>
 <?php include_once("footer.php")?>
