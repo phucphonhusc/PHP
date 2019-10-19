@@ -111,5 +111,18 @@ class Book{
         
         fclose($myfile);
     }
+static function getBookOfPage($page){
+        $limit = 5;//gioi hang so row
+        $tempArr = array();
+        $listBook = Book::getListFromFile();
+        $startItem = ($page-1)*5;
+        $endItem = $startItem + 4;
+        for ($i = $startItem; $i < $endItem + 1; $i++) {
+            if(isset($listBook[$i])){
+                array_push($tempArr, $listBook[$i]);
+            }  
+        }
+        return $tempArr;
+    }
 } 
 ?>

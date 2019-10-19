@@ -48,6 +48,13 @@
         $book = new Book($id,$title,$price,$author,$year);
         Book::editBook($book);
     }
+if (isset($_GET["page"]) && $_GET['page'] != "") {
+    $page  = $_GET["page"];
+    $lsFromFile = Book::getBookOfPage($page);
+} else {
+    $page = 1;
+    $lsFromFile = Book::getBookOfPage(1);
+}
     
 ?>
 
@@ -262,14 +269,34 @@
    
   </tbody>
 </table>
-<?php 
-    $config = [
-        'total' => 30, 
-        'limit' => 2,
-        'full' => false,
-        'querystring' => 'page'
-        ];
-    $page = new Pagination($config);
-    echo $page->getPagination();
-?>
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        <li class="page-item">
+            <a class="page-link" href="<?php echo "?page=".($_GET["page"]-1); ?>">Previous</a>
+        </li>
+        <?php
+        $limit = 5;
+        $listBook = Book::getListFromFile();
+        $currentPage = (int) $_GET["page"];
+        //Tong so trang hien thi
+        $total_pages = ceil(sizeof($listBook) / $limit);
+        for ($i = 1; $i <= $total_pages; $i++) {
+            # code...
+            if ($i == $currentPage) {
+                ?>
+                <li class='page-item active'><a class='page-link' href="<?php echo "?page=$i"; ?>"><?php echo $i; ?></a></li>
+            <?php
+                } else {
+                    ?>
+                <li class='page-item'><a class='page-link' href="<?php echo "?page=$i"; ?>"><?php echo $i; ?></a></li>
+        <?php
+            }
+        }
+        ?>
+
+        <li class="page-item">
+            <a class="page-link" href="<?php echo "?page=".($_GET["page"]+1); ?>">Next</a>
+        </li>
+    </ul>
+</nav>
 <?php include_once("footer.php")?>
