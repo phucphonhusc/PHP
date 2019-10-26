@@ -111,18 +111,86 @@ class Book{
         
         fclose($myfile);
     }
-static function getBookOfPage($page){
-        $limit = 5;//gioi hang so row
+    static function getBookOfPage($page){
+        //So item moi trang
+        $limit = 5;
         $tempArr = array();
         $listBook = Book::getListFromFile();
+
         $startItem = ($page-1)*5;
         $endItem = $startItem + 4;
+
         for ($i = $startItem; $i < $endItem + 1; $i++) {
+            # code...
             if(isset($listBook[$i])){
                 array_push($tempArr, $listBook[$i]);
             }  
         }
+
         return $tempArr;
+    }
+    static function connect(){
+        //b1: tạo kết nối
+        $con = new mysqli("localhost","root","","BookManager");
+        $con->set_charset("utf8");
+        if($con->connect_error)
+            die("Kết nối thất bại. Chi tiết:" .$con->connect_error);
+       //  echo "<h1>Kết nối thành công!</h1>";
+       //b2: thao tác vs csdl : crud
+        return $con;
+    }
+
+    static function getListFromDB(){
+         $con = Book::connect();
+        $sql = "SELECT * FROM book ";
+        $result = $con->query($sql);
+        $lsBook = array();
+        if($result->num_rows >0){
+            while($row = $result->fetch_assoc()){
+                $book= new Book($row["ID"],$row["Title"],$row["Price"],$row["Author"],$row["Year"]);
+                array_push($lsBook, $book);
+            }
+        }
+        //b3: giải phóng kết nối
+        $con->close();
+        return $lsBook;
+    }
+    
+    static function addBookDB($id,$title,$price,$author,$year){
+        $con = Book::connect();
+        $sql = "INSERT INTO book (ID ,Title, Price, Author, Year) VALUES ('$id','$title','$price','$author','$year')";
+        // $result = $con->query($sql);
+        if($con->query($sql)===TRUE){
+            echo "Thêm thành công";
+        }else{
+            echo "Them thất bại". $con->connect_error;
+        }
+        $con->close();
+    }
+    static function delBookDB($id){
+        $con = Book::connect();
+        $sql = "DELETE FROM book  WHERE ID =$id " ;
+        // echo $id;
+        // $result = $con->query($sql);
+        if($con->query($sql) === TRUE){
+            echo "Xoa thành công";
+        }else{
+            echo "Xoa thất bại". $con->connect_error;
+        }
+            
+        $con->close();
+    }
+    static function editBookDB( $id, $title, $price, $author, $year){
+        $con = Book::connect();
+        $sql = "UPDATE book SET Title='$title',Price='$price',Author='$author', Year='$year'   WHERE ID=$id";
+        // echo "kokok";
+        // $result = $con->query($sql);
+        if($con->query($sql) === TRUE){
+            echo "sua thành công";
+        }else{
+            echo "sua thất bại". $con->connect_error;
+        }
+        $con->close();
     }
 } 
 ?>
