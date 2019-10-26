@@ -8,6 +8,7 @@
     $ls = Book::getList(); //vi ham getList la static gọi thông qua lớp  chứ ko qua đối tượng đc
     //addBook la name cua nút
     $lsFromFile = Book::getListFromFile();
+   
     $arr;
     if (isset($_GET['nuttimkiem'])) {
       $result = array();
@@ -24,19 +25,29 @@
         }
       }
     }
+    // if (isset($_REQUEST["addBook"])) {
+    //   $id = $_REQUEST["id"];
+    //   $title = $_REQUEST["title"];
+    //   $price = $_REQUEST["price"];
+    //   $author = $_REQUEST["author"];
+    //   $year = $_REQUEST["year"];
+    //   //$content = $id . "#" . $title . "#" . $price . "#" . $author . "#" . $year;		
+    //   Book::AddToFile($content,$id);
+      
+    // }
     if (isset($_REQUEST["addBook"])) {
-      $id = $_REQUEST["id"];
+      $id = $_REQUEST["idBook"];
       $title = $_REQUEST["title"];
       $price = $_REQUEST["price"];
       $author = $_REQUEST["author"];
       $year = $_REQUEST["year"];
-      $content = $id . "#" . $title . "#" . $price . "#" . $author . "#" . $year;		
-      Book::AddToFile($content,$id);
+      //$content = $id . "#" . $title . "#" . $price . "#" . $author . "#" . $year;		
+      Book::addBookDB($id,$title,$price,$author,$year);
       
     }
     if (isset($_REQUEST["delBook"])) {
           
-          Book::delBook($_REQUEST["idBook"]);
+          Book::delBookDB($_REQUEST["idBook"]);
       
     }
     if(isset($_REQUEST["editBook"])){
@@ -45,17 +56,19 @@
         $price = $_REQUEST['price'];
         $author= $_REQUEST['author'];
         $year  = $_REQUEST['year'];
-        $book = new Book($id,$title,$price,$author,$year);
-        Book::editBook($book);
+        // $book = new Book($id,$title,$price,$author,$year);
+        Book::editBookDB($id, $title,$price,$author,$year);
     }
-if (isset($_GET["page"]) && $_GET['page'] != "") {
-    $page  = $_GET["page"];
-    $lsFromFile = Book::getBookOfPage($page);
-} else {
-    $page = 1;
-    $lsFromFile = Book::getBookOfPage(1);
-}
-    
+    if (isset($_GET["page"]) && $_GET['page'] != "") {
+      $page  = $_GET["page"];
+      $lsFromFile = Book::getBookOfPage($page);
+    } else {
+      $page = 1;
+      $lsFromFile = Book::getBookOfPage(1);
+    }
+    $lsFromDB= Book::getListFromDB();
+
+       
 ?>
 
 <div class="row">
@@ -87,7 +100,7 @@ if (isset($_GET["page"]) && $_GET['page'] != "") {
                   <div class="form-group d-flex">
                       <label class="pt-1 col-md-2 control-label" for="Title">ID</label>
                       <div class="col-md-10">
-                        <input id="id" name="id" type="text" placeholder="Id" class="form-control input-md">
+                        <input id="id" name="idBook" type="text" placeholder="Id" class="form-control input-md">
                       </div>
                     </div>
                     <div class="form-group d-flex">
@@ -99,7 +112,7 @@ if (isset($_GET["page"]) && $_GET['page'] != "") {
                     <div class="form-group d-flex">
                       <label class="pt-1 col-md-2 control-label" for="Title">Price</label>
                       <div class="col-md-10">
-                        <input id="Title" name="price" type="text" placeholder="Price" class="form-control input-md">
+                        <input id="Price" name="price" type="text" placeholder="Price" class="form-control input-md">
                       </div>
                     </div>
                     <!-- Select Basic -->
@@ -157,14 +170,14 @@ if (isset($_GET["page"]) && $_GET['page'] != "") {
   </thead>
   <tbody>
     <?php 
-      if(isset($result)){
-        $arr = $result;
-      }
-      else{
-        $arr = $lsFromFile;
-      }
+      // if(isset($result)){
+      //   $arr = $result;
+      // }
+      // else{
+      //   $arr = $lsFromDB;
+      // }
       
-      foreach ($arr as  $key => $value) {
+      foreach ($lsFromDB as  $key => $value) {
       ?>   
       <tr align="center">
         <td><?php echo $value->id?></td>
@@ -190,7 +203,7 @@ if (isset($_GET["page"]) && $_GET['page'] != "") {
                           <div class="form-group d-flex">
                               <label class="pt-1 col-md-2 control-label" for="Title">ID</label>
                               <div class="col-md-10">
-                                <input id="id" name="id" type="text" disabled value="<?php echo "$value->id";?>" class="form-control input-md">
+                                <input id="id" name="idBook" type="text" disabled value="<?php echo "$value->id";?>" class="form-control input-md">
                               </div>
                             </div>
                             <div class="form-group d-flex">
@@ -239,10 +252,10 @@ if (isset($_GET["page"]) && $_GET['page'] != "") {
                 </div>
               </div>
               
-              <button type="submit" class="btn btn-outline-danger" data-toggle="modal" data-target="<?php echo "#deleteBook".$value->id; ?>"><i class="far fa-trash-alt"></i> Xóa</button>
-              <div class="modal fade" id="<?php echo "deleteBook".$value->id; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <button type="submit" class="btn btn-outline-danger" data-toggle="modal" data-target="<?php echo "#delBook".$value->id; ?>"><i class="far fa-trash-alt"></i> Xóa</button>
+              <div class="modal fade" id="<?php echo "delBook".$value->id; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
-                  <form action="" method="post">  
+                  <form action="" method="get">  
                   <div class="modal-content">
                     <div class="modal-header">
                       <h5 class="modal-title" id="exampleModalLabel">Xác nhận xóa: <?php echo "$value->title"?> ?</h5>
@@ -253,7 +266,7 @@ if (isset($_GET["page"]) && $_GET['page'] != "") {
                     </div>
                     
                     <div class="modal-footer">
-                      <input type="hidden" name="idBook" value="<?php echo "$key"; ?>" />
+                      <input type="hidden" name="idBook" value="<?php echo "$value->id"; ?>" />
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                       <button type="submit" class="btn btn-primary" name="delBook">Xóa</button>
                     </div>
@@ -277,6 +290,7 @@ if (isset($_GET["page"]) && $_GET['page'] != "") {
         <?php
         $limit = 5;
         $listBook = Book::getListFromFile();
+
         $currentPage = (int) $_GET["page"];
         //Tong so trang hien thi
         $total_pages = ceil(sizeof($listBook) / $limit);
@@ -299,4 +313,6 @@ if (isset($_GET["page"]) && $_GET['page'] != "") {
         </li>
     </ul>
 </nav>
+
+
 <?php include_once("footer.php")?>
