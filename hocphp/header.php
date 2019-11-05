@@ -13,6 +13,30 @@
     <!-- Custom styles for this template-->
     <link href="css/sb-admin.css" rel="stylesheet">
 </head>
+<!-- <style type="text/css">
+    .pagination {
+        margin-left: 35%;
+        margin-top : 15%;
+    }
+    .pagination li{
+        background: #dddddd;
+        width: 35px;
+        height: 30px;
+        line-height: 30px;
+        float: left;
+        text-align: center;
+        margin-right: 1px;
+    }
+    .pagination a{
+        text-decoration: none;
+    }
+    .pagination li.active{
+        color:white;
+        background: blue;
+    }
+    .pagination .active a{
+        color:white;
+    }
     
-</style>
+</style> -->
 <body>

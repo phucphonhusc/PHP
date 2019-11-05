@@ -50,7 +50,7 @@ class Book{
         return  $lsBook;
     }
     static function getListTimKiem($search = null){
-        $data = file("Data/book.txt");
+        $data = file("Data/book.txt",FILE_SKIP_EMPTY_LINES);
         $arrBook = [];
         foreach($data as $key => $value){
             $row = explode("#",$value);
@@ -59,9 +59,25 @@ class Book{
                 strlen(strstr($row[1],$search)) || strlen(strstr($row[4],$search)) ||
                 strlen(strstr($row[2],$search)) || $search == null
             )
-            $arrBook[] = new Book($row[0],$row[2],$row[1],$row[3],$row[4]);
+            $arrBook[] = new Book($row[0],$row[1],$row[2],$row[3],$row[4]);
+            
         }
         return $arrBook;
+    }
+    static function getListTimKiemDB($keyword){
+        $con = Book::connect(); //kết nối
+        $sql = "SELECT * FROM book WHERE Title like '%$keyword%' or Author like '%$keyword%'";
+        $result = $con->query($sql);
+        $lsBookDB = array();
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $book = new Book($row["ID"], $row["Title"], $row["Price"], $row["Author"], $row["Year"]);
+                array_push($lsBookDB, $book);
+            }
+        }
+        //giải phóng kết nối
+        $con->close();
+        return $lsBookDB;
     }
     static function AddToFile($content, $idBook){
         $listBook = Book::getListFromFile();
@@ -115,7 +131,7 @@ class Book{
         //So item moi trang
         $limit = 5;
         $tempArr = array();
-        $listBook = Book::getListFromFile();
+        $listBook = Book::getListFromDB();
 
         $startItem = ($page-1)*5;
         $endItem = $startItem + 4;
@@ -192,5 +208,38 @@ class Book{
         }
         $con->close();
     }
+    static function getBookOfPageFromDB($page)
+    {
+        $limit = 2;
+        $offset = ($page - 1) * $limit;
+        $con = Book::connect();
+        //Lay du lieu cho trang
+        $sql = "SELECT * FROM book LIMIT $offset, $limit";
+        $result = $con->query($sql);
+        $lsbook = array();
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                # code...
+                $book = new Book($row["ID"], $row["Title"], $row["Price"], $row["Author"], $row["Year"]);
+                array_push($lsbook, $book);
+            }
+        }
+        $con->close();
+        return $lsbook;
+    }
+    static function getTotalPageFromDB()
+    {
+        $limit = 2;
+        $con = Book::connect();
+        //Lay so record cua bang
+        $count = "SELECT COUNT(*) FROM book ";
+        $result = $con->query($count)->fetch_array();
+        $record = $result[0];
+        //Tinh so trang
+        $totalPage = ceil($record / $limit);
+        $con->close();
+        return $totalPage;
+    }
+
 } 
 ?>

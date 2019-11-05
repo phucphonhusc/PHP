@@ -1,4 +1,3 @@
-<?php require_once 'MODEL/Pagination.php'; ?>
 <?php include_once("header.php")
 ?>
 <?php include_once("nav.php")?>
@@ -7,23 +6,14 @@
     // $book->display();
     $ls = Book::getList(); //vi ham getList la static gọi thông qua lớp  chứ ko qua đối tượng đc
     //addBook la name cua nút
+    // $keyWord = null;
+    // $keyWord = $_REQUEST['search'];
+    // $lsFromFile1 = Book::getListTimKiem($keyWord);
     $lsFromFile = Book::getListFromFile();
    
     $arr;
-    if (isset($_GET['nuttimkiem'])) {
-      $result = array();
-      $search = $_GET['timkiem'];
-      if (empty($search)) {
-        echo "Yeu cau nhap du lieu vao o trong";
-      }
-      else{
-        foreach($lsFromFile as $key => $value){
-        
-          if(strpos($value->title,$_REQUEST['timkiem'])!=0||strpos($value->author,$_REQUEST['timkiem'])!=0||strcasecmp(trim($value->year),$_REQUEST['timkiem'])==0){
-            array_push($result, $value);
-          }
-        }
-      }
+    if (isset($_REQUEST["search"])) {
+      Book::getListTimKiemDB($_REQUEST['search']);
     }
     // if (isset($_REQUEST["addBook"])) {
     //   $id = $_REQUEST["id"];
@@ -74,12 +64,12 @@
 <div class="row">
   <div class="col-6">
     <form action="" method="GET">
-      <div class="form-group">
-        <input type="text" name="timkiem" placeholder="Search" value="<?php echo $_GET["timkiem"] ??"" ?>">  
-        <button type="submit" name="nuttimkiem"><i class="fa fa-search"></i></button>
-        
-      </div>
+        <div class="form-group">
+            <input class="form-control"  name="search" style="max-width: 200px; display:inline-block;" placeholder="Search">
+            <button type="submit" class="btn btn-default" style="margin-left:-50px"><i class="fas fa-search"></i></button>
+        </div>
     </form>
+
   </div>
   <div class="col-6">
     <button style="float:right; margin-bottom:10px;" type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addBook"><i class="fas fa-plus-circle"></i> Thêm</button>
@@ -162,8 +152,8 @@
     <tr align="center">
       <th scope="col">STT</th>
       <th scope="col">Tiêu Đề</th>
-      <th scope="col">Tác Giả</th>
-      <th scope="col">Giá</th>
+      <th scope="col">Giá</th>
+      <th scope="col">Tác giả</th>
       <th scope="col">Năm</th> 
       <th scope="col">Thao tác</th>
     </tr>
@@ -182,8 +172,8 @@
       <tr align="center">
         <td><?php echo $value->id?></td>
         <td><?php echo $value->title?></td>
-        <td><?php echo $value->author?></td>
-        <td><?php echo $value->price?></td>    
+        <td><?php echo $value->price?></td>
+        <td><?php echo $value->author?></td>    
         <td><?php echo $value->year?></td>
         <td>
               <button type="button" data-toggle="modal" data-target="<?php echo "#editBook".$value->id; ?>" class="btn btn-outline-warning"><i class="far fa-edit"></i> Sửa</button>
@@ -282,26 +272,38 @@
    
   </tbody>
 </table>
+<!-- //phân trang -->
+<?php
+if (isset($_GET["page"]) && $_GET['page'] != "") {
+    $page  = $_GET["page"];
+    $lsFromFile = Book::getBookOfPageFromDB($page);
+} else {
+    $page = 1;
+    $lsFromFile = Book::getBookOfPageFromDB(1);
+};
+?>
+
 <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">
         <li class="page-item">
-            <a class="page-link" href="<?php echo "?page=".($_GET["page"]-1); ?>">Previous</a>
+            <a class="page-link" href="<?php echo "?page=" . ($_GET["page"] - 1); ?>">Previous</a>
         </li>
         <?php
-        $limit = 5;
-        $listBook = Book::getListFromFile();
-
-        $currentPage = (int) $_GET["page"];
+        $limit = 2;
+        $listBook = Book::getListFromDB();
+        if (isset($_GET["page"])) {
+            $currentPage = (int) $_GET["page"];
+        } else {
+            $currentPage = 1;
+        }
         //Tong so trang hien thi
-        $total_pages = ceil(sizeof($listBook) / $limit);
+        $total_pages = Book::getTotalPageFromDB();
         for ($i = 1; $i <= $total_pages; $i++) {
             # code...
             if ($i == $currentPage) {
                 ?>
                 <li class='page-item active'><a class='page-link' href="<?php echo "?page=$i"; ?>"><?php echo $i; ?></a></li>
-            <?php
-                } else {
-                    ?>
+            <?php } else { ?>
                 <li class='page-item'><a class='page-link' href="<?php echo "?page=$i"; ?>"><?php echo $i; ?></a></li>
         <?php
             }
@@ -309,10 +311,8 @@
         ?>
 
         <li class="page-item">
-            <a class="page-link" href="<?php echo "?page=".($_GET["page"]+1); ?>">Next</a>
+            <a class="page-link" href="<?php echo "?page=" . ($_GET["page"] + 1); ?>">Next</a>
         </li>
     </ul>
 </nav>
-
-
 <?php include_once("footer.php")?>
